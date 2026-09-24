@@ -124,29 +124,21 @@ func TestLoggerPropagation_FullStack(t *testing.T) {
 
 	claims := &jwtassertion.TokenClaims{Sub: "user-1", OuId: "ou-999", OuHandle: "acme"}
 
-	// Assemble chain as RouteRegistrar does:
-	// PathParamValidation -> RequireOrgMatch -> WithLoggerPathParams
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux := http.NewServeMux()
+	rr := NewRouteRegistrar(mux, stubResolver{}, nil)
+	rr.HandleFuncWithValidation("GET /orgs/{orgName}/projects/{projName}/agents/{agentName}", func(w http.ResponseWriter, r *http.Request) {
 		l := logger.GetLogger(r.Context())
 		l.Info("business logic executed")
 		w.WriteHeader(http.StatusOK)
 	})
 
-	handler = WithPathParamValidation(handler, utils.PathParamProjName, utils.PathParamAgentName)
-	handler = RequireOrgMatch(stubResolver{})(handler)
-	handler = WithLoggerPathParams(handler, utils.PathParamOrgName, utils.PathParamProjName, utils.PathParamAgentName)
-
 	req := httptest.NewRequest(http.MethodGet, "/orgs/acme/projects/core/agents/support", nil)
-	req.SetPathValue(utils.PathParamOrgName, "acme")
-	req.SetPathValue(utils.PathParamProjName, "core")
-	req.SetPathValue(utils.PathParamAgentName, "support")
-
 	ctx := logger.WithLogger(req.Context(), baseLogger)
 	ctx = jwtassertion.ContextWithTokenClaims(ctx, claims)
 	req = req.WithContext(ctx)
 
 	rec := httptest.NewRecorder()
-	handler(rec, req)
+	mux.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", rec.Code)

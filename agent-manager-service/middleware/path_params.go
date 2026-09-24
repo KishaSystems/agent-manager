@@ -213,6 +213,7 @@ var logFieldForParam = map[string]string{
 	utils.PathParamEnvID:     "env_id",
 	utils.PathParamMonitorId: "monitor_id",
 	utils.PathParamGatewayId: "gateway_id",
+	"gatewayID":              "gateway_id",
 }
 
 // WithLoggerPathParams enriches the request-scoped logger with well-known path
