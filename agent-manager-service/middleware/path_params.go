@@ -208,11 +208,11 @@ func WithPathParamValidation(handler http.HandlerFunc, requiredParams ...string)
 // logger — keeping the set explicit controls log cardinality and avoids
 // leaking routing-only values like orgName (org identity comes from the token).
 var logFieldForParam = map[string]string{
-	utils.PathParamAgentName:  "agent_name",
-	utils.PathParamProjName:   "project_name",
-	utils.PathParamEnvID:      "env_id",
-	utils.PathParamMonitorId:  "monitor_id",
-	utils.PathParamGatewayId:  "gateway_id",
+	utils.PathParamAgentName: "agent_name",
+	utils.PathParamProjName:  "project_name",
+	utils.PathParamEnvID:     "env_id",
+	utils.PathParamMonitorId: "monitor_id",
+	utils.PathParamGatewayId: "gateway_id",
 }
 
 // WithLoggerPathParams enriches the request-scoped logger with well-known path
